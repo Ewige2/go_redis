@@ -12,7 +12,7 @@ import (
 )
 
 type Config struct {
-	address string
+	Address string
 }
 
 func ListenAndServeWithSignal(
@@ -32,19 +32,16 @@ func ListenAndServeWithSignal(
 			closeChan <- struct{}{}
 		}
 	}()
-	listener, err := net.Listen("tcp", cfg.address)
+	listener, err := net.Listen("tcp", cfg.Address)
 	if err != nil {
 		return err
 	}
-	logger.Info("start   listen")
+	logger.Info("start listen", cfg.Address)
 	ListenAndServe(listener, handler, closeChan)
 	return nil
 }
 
-func ListenAndServe(
-	listener net.Listener,
-	handler tcp.Handler,
-	closeChan <-chan struct{}) {
+func ListenAndServe(listener net.Listener, handler tcp.Handler, closeChan <-chan struct{}) {
 
 	go func() {
 		// 监听程序是否被关闭如果关闭停止所有的通信
@@ -75,6 +72,7 @@ func ListenAndServe(
 				// 如果handler出现错误也能执行
 				waitDone.Done()
 			}()
+			// 处理客户端连接
 			handler.Handle(ctx, conn)
 		}()
 	}
